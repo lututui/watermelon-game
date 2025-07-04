@@ -1,9 +1,8 @@
-import 'dart:math' as math;
-
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:watermelon_game/game.dart';
+import 'package:watermelon_game/player.dart';
 
 enum FruitType {
   blueberry(0.9, true),
@@ -48,6 +47,7 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
   FruitType type;
   bool markedForMerge = false;
   Fruit? _other;
+  bool isStatic = true;
 
   @override
   final Vector2 position;
@@ -84,7 +84,7 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
   @override
   Body createBody() {
     final bodyDef = BodyDef(
-      type: BodyType.dynamic,
+      type: isStatic ? BodyType.static : BodyType.dynamic,
       position: position,
       userData: this,
     );
@@ -117,25 +117,37 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
 
   @override
   void update(double dt) {
-    if (!markedForMerge) return;
-    if (game.mergeCooldown.isRunning()) return;
+    if (markedForMerge && !game.mergeCooldown.isRunning()) {
+      final nextFruitType = type.nextFruitType();
 
-    final nextFruitType = type.nextFruitType();
+      world.destroyBody(_other!.body);
+      world.remove(_other!);
 
-    world.destroyBody(_other!.body);
-    world.remove(_other!);
+      if (nextFruitType == null) {
+        world.destroyBody(body);
+        world.remove(this);
+      } else {
+        type = nextFruitType;
+        createFixture(body);
 
-    if (nextFruitType == null) {
-      world.destroyBody(body);
-      world.remove(this);
-    } else {
-      type = nextFruitType;
-      createFixture(body);
+        markedForMerge = false;
+        _other = null;
+      }
 
-      markedForMerge = false;
-      _other = null;
+      game.mergeCooldown.start();
     }
+  }
 
-    game.mergeCooldown.start();
+  void release() {
+    final player = game.player;
+
+    player.nextFruit.isStatic = false;
+    world.destroyBody(player.nextFruit.body);
+    player.nextFruit.body = player.nextFruit.createBody();
+
+    player.nextFruit = FruitType.random(
+      player.position + Vector2.all(Player.xSize) / 2.0,
+    );
+    world.add(player.nextFruit);
   }
 }

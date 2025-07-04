@@ -1,5 +1,6 @@
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/material.dart';
+import 'package:watermelon_game/fruit.dart';
 import 'package:watermelon_game/game.dart';
 
 class Player extends BodyComponent<WatermelonGame> {
@@ -7,6 +8,9 @@ class Player extends BodyComponent<WatermelonGame> {
   static final double ySize = 1;
 
   final Vector2 startingPosition;
+
+  late Fruit nextFruit;
+
 
   Player({required this.startingPosition})
     : super(paint: Paint()..color = Colors.red);
@@ -22,6 +26,10 @@ class Player extends BodyComponent<WatermelonGame> {
     final player = world.createBody(bodyDef);
 
     player.createFixture(FixtureDef(CircleShape(radius: 1.0), isSensor: true));
+
+    nextFruit = FruitType.random(startingPosition + Vector2.all(xSize / 2.0));
+
+    world.add(nextFruit);
 
     return player;
   }

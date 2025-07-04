@@ -2,7 +2,6 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/material.dart';
-import 'package:watermelon_game/fruit.dart';
 import 'package:watermelon_game/game.dart';
 
 class Bucket extends BodyComponent<WatermelonGame> with TapCallbacks {
@@ -67,12 +66,13 @@ class Bucket extends BodyComponent<WatermelonGame> with TapCallbacks {
 
     _spawnTimer.start();
 
-    game.player.position.x = game.screenToWorld(event.canvasPosition).x;
+    final eventX = game.screenToWorld(event.canvasPosition).x;
+    final deltaX = eventX - game.player.position.x;
 
-    print(game.screenToWorld(event.canvasPosition));
-    print(event);
+    game.player.position.x += deltaX;
+    game.player.nextFruit.position.x += deltaX;
 
-    world.add(FruitType.random(game.player.position));
+    game.player.nextFruit.release();
   }
 
   @override
