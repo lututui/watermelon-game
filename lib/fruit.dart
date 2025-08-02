@@ -17,20 +17,19 @@ enum FruitType {
   watermelon(5.5, false);
 
   final double radius;
-  final bool spawnableByPlayer;
+  final bool spawnable;
 
-  const FruitType(this.radius, this.spawnableByPlayer);
+  const FruitType(this.radius, this.spawnable);
 
   Fruit create(Vector2 position) {
     return Fruit.asset(type: this, position: position);
   }
 
+  static final List<FruitType> spawnableFruit =
+      FruitType.values.where((it) => it.spawnable).toList();
+
   static Fruit random(Vector2 position) {
-    return FruitType.values
-        .where((it) => it.spawnableByPlayer)
-        .toList()
-        .random()
-        .create(position);
+    return spawnableFruit.random().create(position);
   }
 
   @override
@@ -53,7 +52,7 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
   final Vector2 position;
 
   Sprite get sprite {
-    return Sprite(game.images.fromCache("${type.name}.png"));
+    return Sprite(game.images.fromCache("fruit/${type.name}.png"));
   }
 
   Fruit.asset({required this.type, required this.position})
@@ -93,7 +92,7 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
       type: isStatic ? BodyType.static : BodyType.dynamic,
       position: position,
       userData: this,
-      active: !isStatic
+      active: !isStatic,
     );
 
     final fruit = world.createBody(bodyDef);

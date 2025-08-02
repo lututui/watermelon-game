@@ -7,7 +7,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await windowManager.ensureInitialized();
-  await windowManager.setSize(Size(450, 600));
+  await windowManager.setSize(const Size(450, 600));
   await windowManager.setResizable(false);
   await windowManager.setMaximizable(false);
   await windowManager.show();

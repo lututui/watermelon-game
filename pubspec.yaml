@@ -61,16 +61,17 @@ flutter:
   uses-material-design: true
   
   assets:
-    - assets/images/blueberry.png
-    - assets/images/strawberry.png
-    - assets/images/orange.png
-    - assets/images/lime.png
-    - assets/images/peach.png
-    - assets/images/apple.png
-    - assets/images/coconut.png
-    - assets/images/pomegranate.png
-    - assets/images/cantaloupe.png
-    - assets/images/watermelon.png
+    - assets/images/fruit/blueberry.png
+    - assets/images/fruit/strawberry.png
+    - assets/images/fruit/orange.png
+    - assets/images/fruit/lime.png
+    - assets/images/fruit/peach.png
+    - assets/images/fruit/apple.png
+    - assets/images/fruit/coconut.png
+    - assets/images/fruit/pomegranate.png
+    - assets/images/fruit/cantaloupe.png
+    - assets/images/fruit/watermelon.png
+    - assets/images/background.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
