@@ -2,6 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/material.dart';
+import 'package:watermelon_game/fruit.dart';
 import 'package:watermelon_game/game.dart';
 
 class Bucket extends BodyComponent<WatermelonGame> with TapCallbacks {
@@ -36,7 +37,7 @@ class Bucket extends BodyComponent<WatermelonGame> with TapCallbacks {
     ];
 
     for (var shape in shapes) {
-      body.createFixture(FixtureDef(PolygonShape()..set(shape)));
+      body.createFixture(FixtureDef(PolygonShape()..set(shape), friction: 1));
     }
 
     final sensor = [topL, botL, botR, topR];
@@ -63,16 +64,16 @@ class Bucket extends BodyComponent<WatermelonGame> with TapCallbacks {
     super.onTapUp(event);
 
     if (_spawnTimer.isRunning()) return;
+    if (game.player.nextFruit == null) return;
 
     _spawnTimer.start();
 
     final eventX = game.screenToWorld(event.canvasPosition).x;
-    final deltaX = eventX - game.player.position.x;
 
-    game.player.position.x += deltaX;
-    game.player.nextFruit.position.x += deltaX;
+    game.player.position.x = eventX;
+    game.player.nextFruit!.position.x = eventX;
 
-    game.player.nextFruit.release();
+    game.player.nextFruit!.release();
   }
 
   @override
@@ -80,6 +81,11 @@ class Bucket extends BodyComponent<WatermelonGame> with TapCallbacks {
     super.update(dt);
 
     _spawnTimer.update(dt);
+
+    if (_spawnTimer.finished && game.player.nextFruit == null) {
+      game.player.nextFruit = FruitType.random(game.player.position);
+      world.add(game.player.nextFruit!);
+    }
   }
 
   @override

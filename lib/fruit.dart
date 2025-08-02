@@ -70,7 +70,13 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
       }
     }
 
-    body.createFixture(FixtureDef(CircleShape(radius: type.radius)));
+    body.createFixture(
+      FixtureDef(
+        CircleShape(radius: type.radius),
+        restitution: 0.2,
+        friction: 0.5,
+      ),
+    );
 
     add(
       SpriteComponent(
@@ -87,6 +93,7 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
       type: isStatic ? BodyType.static : BodyType.dynamic,
       position: position,
       userData: this,
+      active: !isStatic
     );
 
     final fruit = world.createBody(bodyDef);
@@ -117,37 +124,36 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
 
   @override
   void update(double dt) {
-    if (markedForMerge && !game.mergeCooldown.isRunning()) {
-      final nextFruitType = type.nextFruitType();
+    if (!markedForMerge || game.mergeCooldown.isRunning()) return;
 
-      world.destroyBody(_other!.body);
-      world.remove(_other!);
+    final nextFruitType = type.nextFruitType();
 
-      if (nextFruitType == null) {
-        world.destroyBody(body);
-        world.remove(this);
-      } else {
-        type = nextFruitType;
-        createFixture(body);
+    world.destroyBody(_other!.body);
+    world.remove(_other!);
 
-        markedForMerge = false;
-        _other = null;
-      }
+    if (nextFruitType == null) {
+      world.destroyBody(body);
+      world.remove(this);
+    } else {
+      type = nextFruitType;
+      createFixture(body);
 
-      game.mergeCooldown.start();
+      markedForMerge = false;
+      _other = null;
     }
+
+    game.mergeCooldown.start();
   }
 
   void release() {
     final player = game.player;
 
-    player.nextFruit.isStatic = false;
-    world.destroyBody(player.nextFruit.body);
-    player.nextFruit.body = player.nextFruit.createBody();
+    assert(player.nextFruit != null);
 
-    player.nextFruit = FruitType.random(
-      player.position + Vector2.all(Player.xSize) / 2.0,
-    );
-    world.add(player.nextFruit);
+    player.nextFruit!.isStatic = false;
+    world.destroyBody(player.nextFruit!.body);
+    player.nextFruit!.body = player.nextFruit!.createBody();
+
+    player.nextFruit = null;
   }
 }
