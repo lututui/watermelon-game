@@ -1,8 +1,10 @@
+import 'dart:ui';
+
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
+import 'package:flutter/foundation.dart';
 import 'package:watermelon_game/game.dart';
-import 'package:watermelon_game/player.dart';
 
 enum FruitType {
   blueberry(0.9, true),
@@ -21,8 +23,8 @@ enum FruitType {
 
   const FruitType(this.radius, this.spawnable);
 
-  Fruit create(Vector2 position) {
-    return Fruit.asset(type: this, position: position);
+  Fruit create(Vector2 position, {bool isStatic = true}) {
+    return Fruit.asset(type: this, startingPosition: position, isStatic: isStatic);
   }
 
   static final List<FruitType> spawnableFruit =
@@ -43,19 +45,20 @@ enum FruitType {
 }
 
 class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
-  FruitType type;
+  final FruitType type;
+  final Vector2 startingPosition;
+
   bool markedForMerge = false;
   Fruit? _other;
-  bool isStatic = true;
+  bool isStatic;
 
-  @override
-  final Vector2 position;
 
   Sprite get sprite {
-    return Sprite(game.images.fromCache("fruit/${type.name}.png"));
+    return Sprite(game.images.fromCache("fruit/${type.name}.png"))
+      ..paint = (Paint()..filterQuality = FilterQuality.high);
   }
 
-  Fruit.asset({required this.type, required this.position})
+  Fruit.asset({required this.type, required this.startingPosition, this.isStatic = true})
     : super(renderBody: false);
 
   void createFixture(Body body) {
@@ -90,7 +93,7 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
   Body createBody() {
     final bodyDef = BodyDef(
       type: isStatic ? BodyType.static : BodyType.dynamic,
-      position: position,
+      position: startingPosition,
       userData: this,
       active: !isStatic,
     );
@@ -110,7 +113,9 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
     if (markedForMerge) return;
     if (other.markedForMerge) return;
 
-    print('marking $this for merge');
+    if (kDebugMode) {
+      print('marking $this for merge');
+    }
 
     markedForMerge = true;
     _other = other;
@@ -124,18 +129,26 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
   @override
   void update(double dt) {
     if (!markedForMerge || game.mergeCooldown.isRunning()) return;
+    if (_other!.parent == null) {
+      markedForMerge = false;
+      return;
+    }
 
     final nextFruitType = type.nextFruitType();
+    final nextFruitPosition = (_other!.position + position) / 2.0;
+
+    if (kDebugMode) {
+      print(nextFruitPosition);
+    }
 
     world.destroyBody(_other!.body);
     world.remove(_other!);
 
-    if (nextFruitType == null) {
-      world.destroyBody(body);
-      world.remove(this);
-    } else {
-      type = nextFruitType;
-      createFixture(body);
+    world.destroyBody(body);
+    world.remove(this);
+
+    if (nextFruitType != null) {
+      world.add(nextFruitType.create(nextFruitPosition, isStatic: false));
 
       markedForMerge = false;
       _other = null;
