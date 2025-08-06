@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:watermelon_game/fruit.dart';
 import 'package:watermelon_game/game.dart';
 
-class Bucket extends BodyComponent<WatermelonGame> with TapCallbacks {
+class Bucket extends BodyComponent<WatermelonGame>
+    with TapCallbacks, DragCallbacks {
   static final double xBound = 20;
   static final double yBound = 20;
   static final double dxBound = 0.5;
@@ -60,20 +61,56 @@ class Bucket extends BodyComponent<WatermelonGame> with TapCallbacks {
   }
 
   @override
+  void onDragUpdate(DragUpdateEvent event) {
+    super.onDragUpdate(event);
+
+    if (_spawnTimer.isRunning()) return;
+    if (game.player.nextFruit == null) return;
+
+    final eventDeltaX = event.canvasDelta.x / 10;
+
+    game.player.position.x += eventDeltaX;
+    game.player.nextFruit!.position.x += eventDeltaX;
+  }
+
+  @override
+  void onDragEnd(DragEndEvent event) {
+    super.onDragEnd(event);
+
+    if (_spawnTimer.isRunning()) return;
+    if (game.player.nextFruit == null) return;
+
+    dropFruit();
+  }
+
+  void dropFruit() {
+    _spawnTimer.start();
+
+    game.player.nextFruit!.release();
+  }
+
+
+  @override
+  void onTapDown(TapDownEvent event) {
+    super.onTapDown(event);
+
+    if (_spawnTimer.isRunning()) return;
+    if (game.player.nextFruit == null) return;
+
+    final updatedPosition = game.screenToWorld(event.canvasPosition).x;
+
+    game.player.position.x = updatedPosition;
+    game.player.nextFruit!.position.x = updatedPosition;
+  }
+
+  @override
   void onTapUp(TapUpEvent event) {
     super.onTapUp(event);
 
     if (_spawnTimer.isRunning()) return;
     if (game.player.nextFruit == null) return;
 
-    _spawnTimer.start();
-
-    final eventX = game.screenToWorld(event.canvasPosition).x;
-
-    game.player.position.x = eventX;
-    game.player.nextFruit!.position.x = eventX;
-
-    game.player.nextFruit!.release();
+    dropFruit();
   }
 
   @override
