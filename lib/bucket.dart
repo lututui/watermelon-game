@@ -67,10 +67,7 @@ class Bucket extends BodyComponent<WatermelonGame>
     if (_spawnTimer.isRunning()) return;
     if (game.player.nextFruit == null) return;
 
-    final eventDeltaX = event.canvasDelta.x / 10;
-
-    game.player.position.x += eventDeltaX;
-    game.player.nextFruit!.position.x += eventDeltaX;
+    game.player.updatePosition(deltaPos: event.canvasDelta.x / 10);
   }
 
   @override
@@ -89,7 +86,6 @@ class Bucket extends BodyComponent<WatermelonGame>
     game.player.nextFruit!.release();
   }
 
-
   @override
   void onTapDown(TapDownEvent event) {
     super.onTapDown(event);
@@ -97,10 +93,9 @@ class Bucket extends BodyComponent<WatermelonGame>
     if (_spawnTimer.isRunning()) return;
     if (game.player.nextFruit == null) return;
 
-    final updatedPosition = game.screenToWorld(event.canvasPosition).x;
-
-    game.player.position.x = updatedPosition;
-    game.player.nextFruit!.position.x = updatedPosition;
+    game.player.updatePosition(
+      newPos: game.screenToWorld(event.canvasPosition).x,
+    );
   }
 
   @override

@@ -49,6 +49,7 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
   final Vector2 startingPosition;
 
   bool markedForMerge = false;
+  bool firstTick = true;
   Fruit? _other;
   bool isStatic;
 
@@ -128,33 +129,44 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
 
   @override
   void update(double dt) {
-    if (!markedForMerge || game.mergeCooldown.isRunning()) return;
-    if (_other!.parent == null) {
-      markedForMerge = false;
+    if (firstTick) {
+      game.player.updatePosition();
+      firstTick = false;
       return;
     }
 
-    final nextFruitType = type.nextFruitType();
-    final nextFruitPosition = (_other!.position + position) / 2.0;
+    if (markedForMerge) {
+      if (game.mergeCooldown.isRunning()) return;
 
-    if (kDebugMode) {
-      print(nextFruitPosition);
+      if (_other!.parent == null) {
+        markedForMerge = false;
+        return;
+      }
+
+      final nextFruitType = type.nextFruitType();
+      final nextFruitPosition = (_other!.position + position) / 2.0;
+
+      if (kDebugMode) {
+        print(nextFruitPosition);
+      }
+
+      world.destroyBody(_other!.body);
+      world.remove(_other!);
+
+      world.destroyBody(body);
+      world.remove(this);
+
+      if (nextFruitType != null) {
+        world.add(nextFruitType.create(nextFruitPosition, isStatic: false));
+
+        markedForMerge = false;
+        _other = null;
+      }
+
+      game.mergeCooldown.start();
+
+      return;
     }
-
-    world.destroyBody(_other!.body);
-    world.remove(_other!);
-
-    world.destroyBody(body);
-    world.remove(this);
-
-    if (nextFruitType != null) {
-      world.add(nextFruitType.create(nextFruitPosition, isStatic: false));
-
-      markedForMerge = false;
-      _other = null;
-    }
-
-    game.mergeCooldown.start();
   }
 
   void release() {
