@@ -42,6 +42,10 @@ enum FruitType {
   FruitType? nextFruitType() {
     return FruitType.values.elementAtOrNull(index + 1);
   }
+
+  int get score {
+    return 1 << index;
+  }
 }
 
 class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
@@ -163,6 +167,7 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
         _other = null;
       }
 
+      game.score += type.score;
       game.mergeCooldown.start();
 
       return;

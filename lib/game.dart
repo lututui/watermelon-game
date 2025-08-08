@@ -11,6 +11,8 @@ class WatermelonGame extends Forge2DGame with ContactCallbacks {
   final Bucket bucket = Bucket();
   final Timer mergeCooldown = Timer(0.1, autoStart: false);
 
+  int score = 0;
+
   @override
   void update(double dt) {
     super.update(dt);
