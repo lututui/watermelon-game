@@ -4,6 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/foundation.dart';
+import 'package:watermelon_game/bucket.dart';
 import 'package:watermelon_game/game.dart';
 
 enum FruitType {
@@ -24,7 +25,11 @@ enum FruitType {
   const FruitType(this.radius, this.spawnable);
 
   Fruit create(Vector2 position, {bool isStatic = true}) {
-    return Fruit.asset(type: this, startingPosition: position, isStatic: isStatic);
+    return Fruit.asset(
+      type: this,
+      startingPosition: position,
+      isStatic: isStatic,
+    );
   }
 
   static final List<FruitType> spawnableFruit =
@@ -56,15 +61,20 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
   bool firstTick = true;
   Fruit? _other;
   bool isStatic;
+  bool insideBox = false;
 
+  final Timer _outsideBoxTimer = Timer(2, autoStart: false);
 
   Sprite get sprite {
     return Sprite(game.images.fromCache("fruit/${type.name}.png"))
       ..paint = (Paint()..filterQuality = FilterQuality.high);
   }
 
-  Fruit.asset({required this.type, required this.startingPosition, this.isStatic = true})
-    : super(renderBody: false);
+  Fruit.asset({
+    required this.type,
+    required this.startingPosition,
+    this.isStatic = true,
+  }) : super(renderBody: false);
 
   void createFixture(Body body) {
     if (body.fixtures.isNotEmpty) {
@@ -111,19 +121,51 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
   }
 
   @override
+  void endContact(Object other, Contact contact) {
+    if (other is! Bucket) return;
+
+    if (other.sensor != contact.fixtureA && other.sensor != contact.fixtureB) {
+      return;
+    }
+
+    insideBox = false;
+    _outsideBoxTimer.start();
+  }
+
+  @override
   void beginContact(Object other, Contact contact) {
-    if (other is! Fruit) return;
-    if (other.type != type) return;
+    if (other is Fruit) {
+      beginContactWithOtherFruit(other);
+    } else if (other is Bucket) {
+      beginContactWithBucket(other, contact);
+    }
+  }
+
+  void beginContactWithBucket(Bucket bucket, Contact contact) {
+    if (insideBox) return;
+
+    if (bucket.sensor != contact.fixtureA &&
+        bucket.sensor != contact.fixtureB) {
+      return;
+    }
+
+    insideBox = true;
+    _outsideBoxTimer.stop();
+  }
+
+  void beginContactWithOtherFruit(Fruit otherFruit) {
+    // Other fruit cannot merge with this one
+    if (otherFruit.type != type) return;
 
     if (markedForMerge) return;
-    if (other.markedForMerge) return;
+    if (otherFruit.markedForMerge) return;
 
     if (kDebugMode) {
       print('marking $this for merge');
     }
 
     markedForMerge = true;
-    _other = other;
+    _other = otherFruit;
   }
 
   @override
@@ -133,6 +175,13 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
 
   @override
   void update(double dt) {
+    _outsideBoxTimer.update(dt);
+
+    if (_outsideBoxTimer.finished) {
+      game.gameOver = true;
+      return;
+    }
+
     if (firstTick) {
       game.player.updatePosition();
       firstTick = false;
@@ -175,14 +224,11 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
   }
 
   void release() {
-    final player = game.player;
+    isStatic = false;
+    world.destroyBody(body);
+    body = createBody();
+    _outsideBoxTimer.start();
 
-    assert(player.nextFruit != null);
-
-    player.nextFruit!.isStatic = false;
-    world.destroyBody(player.nextFruit!.body);
-    player.nextFruit!.body = player.nextFruit!.createBody();
-
-    player.nextFruit = null;
+    game.player.nextFruit = null;
   }
 }

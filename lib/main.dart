@@ -12,5 +12,22 @@ void main() async {
   await windowManager.setMaximizable(false);
   await windowManager.show();
 
-  runApp(GameWidget.controlled(gameFactory: WatermelonGame.new));
+  runApp(
+    GameWidget.controlled(
+      gameFactory: WatermelonGame.new,
+      overlayBuilderMap: {
+        'GameOver':
+            (context, game) => Scaffold(
+              body: Text(
+                "Game Over",
+                style: TextStyle(
+                  fontSize: 80,
+                  color: Colors.red,
+                  fontFamily: 'Arcade',
+                ),
+              ),
+            ),
+      },
+    ),
+  );
 }

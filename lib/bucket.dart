@@ -6,13 +6,15 @@ import 'package:watermelon_game/fruit.dart';
 import 'package:watermelon_game/game.dart';
 
 class Bucket extends BodyComponent<WatermelonGame>
-    with TapCallbacks, DragCallbacks {
+    with TapCallbacks, DragCallbacks, ContactCallbacks {
   static final double xBound = 20;
-  static final double yBound = 20;
+  static final double yOffset = 4;
+  static final double yBound = 16;
   static final double dxBound = 0.5;
   static final double dyBound = 0.5;
 
   final Timer _spawnTimer = Timer(2, autoStart: false);
+  late final Fixture sensor;
 
   Bucket()
     : super(
@@ -23,10 +25,10 @@ class Bucket extends BodyComponent<WatermelonGame>
       );
 
   void createFixture(Body body) {
-    final topL = Vector2(-xBound, -yBound);
-    final botL = Vector2(-xBound, yBound);
-    final topR = Vector2(xBound, -yBound);
-    final botR = Vector2(xBound, yBound);
+    final topL = Vector2(-xBound, yOffset - yBound);
+    final botL = Vector2(-xBound, yOffset + yBound);
+    final topR = Vector2(xBound, yOffset - yBound);
+    final botR = Vector2(xBound, yOffset + yBound);
 
     final rightward = Vector2(dxBound, 0);
     final upward = Vector2(0, -dyBound);
@@ -41,17 +43,20 @@ class Bucket extends BodyComponent<WatermelonGame>
       body.createFixture(FixtureDef(PolygonShape()..set(shape), friction: 1));
     }
 
-    final sensor = [topL, botL, botR, topR];
+    final sensorShape = [topL, botL, botR, topR];
 
-    body.createFixture(FixtureDef(PolygonShape()..set(sensor), isSensor: true));
+    sensor = body.createFixture(
+      FixtureDef(PolygonShape()..set(sensorShape), isSensor: true),
+    );
   }
 
   @override
   Body createBody() {
-    final bodyDef = BodyDef();
-
-    bodyDef.position = Vector2.zero();
-    bodyDef.type = BodyType.static;
+    final bodyDef = BodyDef(
+      position: Vector2.zero(),
+      type: BodyType.static,
+      userData: this,
+    );
 
     final body = world.createBody(bodyDef);
 
@@ -129,5 +134,10 @@ class Bucket extends BodyComponent<WatermelonGame>
 
       renderFixture(canvas, fixture);
     }
+  }
+
+  @override
+  void beginContact(Object other, Contact contact) {
+    //
   }
 }

@@ -6,16 +6,26 @@ import 'package:watermelon_game/bucket.dart';
 import 'package:watermelon_game/fruit.dart';
 import 'package:watermelon_game/player.dart';
 
-class WatermelonGame extends Forge2DGame with ContactCallbacks {
+class WatermelonGame extends Forge2DGame {
   final Player player = Player(startingPosition: Vector2(0, -25));
   final Bucket bucket = Bucket();
   final Timer mergeCooldown = Timer(0.1, autoStart: false);
 
   int score = 0;
+  bool gameOver = false;
 
   @override
   void update(double dt) {
     super.update(dt);
+
+    if (gameOver) {
+      if (kDebugMode) {
+        print("Game over. Score: $score");
+      }
+
+      pauseEngine();
+      overlays.add('GameOver');
+    }
 
     mergeCooldown.update(dt);
   }
