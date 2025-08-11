@@ -7,12 +7,6 @@ import 'package:watermelon_game/game.dart';
 
 class Bucket extends BodyComponent<WatermelonGame>
     with TapCallbacks, DragCallbacks, ContactCallbacks {
-  static final double xBound = 20;
-  static final double yOffset = 4;
-  static final double yBound = 16;
-  static final double dxBound = 0.5;
-  static final double dyBound = 0.5;
-
   final Timer _spawnTimer = Timer(2, autoStart: false);
   late final Fixture sensor;
 
@@ -25,25 +19,40 @@ class Bucket extends BodyComponent<WatermelonGame>
       );
 
   void createFixture(Body body) {
-    final topL = Vector2(-xBound, yOffset - yBound);
-    final botL = Vector2(-xBound, yOffset + yBound);
-    final topR = Vector2(xBound, yOffset - yBound);
-    final botR = Vector2(xBound, yOffset + yBound);
-
-    final rightward = Vector2(dxBound, 0);
-    final upward = Vector2(0, -dyBound);
+    final rightward = Vector2(BucketConstants.widthX, 0);
+    final upward = Vector2(0, -BucketConstants.widthY);
 
     final shapes = [
-      [topL, botL, botL + rightward, topL + rightward], // left
-      [botL, botR, botR + upward, botL + upward], // bottom
-      [botR, botR + rightward, topR + rightward, topR], // right
+      [
+        BucketConstants.topLeftPoint,
+        BucketConstants.bottomLeftPoint,
+        BucketConstants.bottomLeftPoint + rightward,
+        BucketConstants.topLeftPoint + rightward,
+      ], // left
+      [
+        BucketConstants.bottomLeftPoint,
+        BucketConstants.bottomRightPoint,
+        BucketConstants.bottomRightPoint + upward,
+        BucketConstants.bottomLeftPoint + upward,
+      ], // bottom
+      [
+        BucketConstants.bottomRightPoint,
+        BucketConstants.bottomRightPoint + rightward,
+        BucketConstants.topRightPoint + rightward,
+        BucketConstants.topRightPoint,
+      ], // right
     ];
 
     for (var shape in shapes) {
       body.createFixture(FixtureDef(PolygonShape()..set(shape), friction: 1));
     }
 
-    final sensorShape = [topL, botL, botR, topR];
+    final sensorShape = [
+      BucketConstants.topLeftPoint,
+      BucketConstants.bottomLeftPoint,
+      BucketConstants.bottomRightPoint,
+      BucketConstants.topRightPoint,
+    ];
 
     sensor = body.createFixture(
       FixtureDef(PolygonShape()..set(sensorShape), isSensor: true),
@@ -72,7 +81,9 @@ class Bucket extends BodyComponent<WatermelonGame>
     if (_spawnTimer.isRunning()) return;
     if (game.player.nextFruit == null) return;
 
-    game.player.updatePosition(deltaPos: event.canvasDelta.x / 10);
+    game.player.updatePosition(
+      deltaPos: event.canvasDelta.x / WatermelonGameConstants.zoom,
+    );
   }
 
   @override
@@ -135,9 +146,22 @@ class Bucket extends BodyComponent<WatermelonGame>
       renderFixture(canvas, fixture);
     }
   }
+}
 
-  @override
-  void beginContact(Object other, Contact contact) {
-    //
-  }
+class BucketConstants {
+  static const double lengthX = 20;
+  static const double lengthY = 16;
+
+  static const double offsetY = 4;
+
+  static const double widthX = 0.5;
+  static const double widthY = 0.5;
+
+  static final Vector2 topLeftPoint = Vector2(-lengthX, -lengthY + offsetY);
+  static final Vector2 topRightPoint = Vector2(lengthX, -lengthY + offsetY);
+
+  static final Vector2 bottomLeftPoint = Vector2(-lengthX, lengthY + offsetY);
+  static final Vector2 bottomRightPoint = Vector2(lengthX, lengthY + offsetY);
+
+  BucketConstants._();
 }

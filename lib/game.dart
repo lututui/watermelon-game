@@ -7,8 +7,9 @@ import 'package:watermelon_game/fruit.dart';
 import 'package:watermelon_game/player.dart';
 
 class WatermelonGame extends Forge2DGame {
-  final Player player = Player(startingPosition: Vector2(0, -25));
+  final Player player = Player();
   final Bucket bucket = Bucket();
+
   final Timer mergeCooldown = Timer(0.1, autoStart: false);
 
   int score = 0;
@@ -48,10 +49,16 @@ class WatermelonGame extends Forge2DGame {
       SpriteComponent(
         sprite: Sprite(backgroundImage),
         anchor: Anchor.center,
-        size: size / 10,
+        size: size / WatermelonGameConstants.zoom,
       ),
     );
     world.add(bucket);
     world.add(player);
   }
+}
+
+class WatermelonGameConstants {
+  static const double zoom = 10.0;
+
+  WatermelonGameConstants._();
 }
