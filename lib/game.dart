@@ -12,8 +12,12 @@ class WatermelonGame extends Forge2DGame {
 
   final Timer mergeCooldown = Timer(0.1, autoStart: false);
 
-  int score = 0;
+  late final Function(int) onScoreChangeCallback;
+
+  ValueNotifier<int> score = ValueNotifier(0);
   bool gameOver = false;
+
+  WatermelonGame() : super(zoom: WatermelonGameConstants.zoom);
 
   @override
   void update(double dt) {

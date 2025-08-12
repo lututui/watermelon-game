@@ -152,7 +152,7 @@ class BucketConstants {
   static const double lengthX = 20;
   static const double lengthY = 16;
 
-  static const double offsetY = 4;
+  static const double offsetY = 6;
 
   static const double widthX = 0.5;
   static const double widthY = 0.5;

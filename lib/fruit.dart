@@ -216,7 +216,7 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
         _other = null;
       }
 
-      game.score += type.score;
+      game.score.value += type.score;
       game.mergeCooldown.start();
 
       return;
