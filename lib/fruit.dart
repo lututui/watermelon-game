@@ -225,8 +225,8 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
 
   void release() {
     isStatic = false;
-    world.destroyBody(body);
-    body = createBody();
+    body.setType(BodyType.dynamic);
+    body.setActive(true);
     _outsideBoxTimer.start();
 
     game.player.nextFruit = null;

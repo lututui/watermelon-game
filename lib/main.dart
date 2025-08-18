@@ -22,6 +22,7 @@ class Main extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(fontFamily: 'The Fruit Star'),
       home: Scaffold(
         body: GameWidget<WatermelonGame>.controlled(
           gameFactory: WatermelonGame.new,
