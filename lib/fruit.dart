@@ -203,14 +203,22 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
         print(nextFruitPosition);
       }
 
+      game.fruit.remove(_other);
       world.destroyBody(_other!.body);
       world.remove(_other!);
 
+      game.fruit.remove(this);
       world.destroyBody(body);
       world.remove(this);
 
       if (nextFruitType != null) {
-        world.add(nextFruitType.create(nextFruitPosition, isStatic: false));
+        final mergedFruit = nextFruitType.create(
+          nextFruitPosition,
+          isStatic: false,
+        );
+
+        world.add(mergedFruit);
+        game.fruit.add(mergedFruit);
 
         markedForMerge = false;
         _other = null;
@@ -228,6 +236,7 @@ class Fruit extends BodyComponent<WatermelonGame> with ContactCallbacks {
     body.setType(BodyType.dynamic);
     body.setActive(true);
     _outsideBoxTimer.start();
+    game.fruit.add(this);
 
     game.player.nextFruit = null;
   }

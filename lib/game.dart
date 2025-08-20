@@ -9,6 +9,7 @@ import 'package:watermelon_game/player.dart';
 class WatermelonGame extends Forge2DGame {
   final Player player = Player();
   final Bucket bucket = Bucket();
+  final Set<Fruit> fruit = {};
 
   final Timer mergeCooldown = Timer(0.1, autoStart: false);
 
@@ -25,7 +26,7 @@ class WatermelonGame extends Forge2DGame {
 
     if (gameOver) {
       if (kDebugMode) {
-        print("Game over. Score: $score");
+        print("Game over. Score: ${score.value}");
       }
 
       pauseEngine();
@@ -58,6 +59,18 @@ class WatermelonGame extends Forge2DGame {
     );
     world.add(bucket);
     world.add(player);
+  }
+
+  void resetGame() {
+    score.value = 0;
+    gameOver = false;
+
+    for (var it in [...fruit]) {
+      fruit.remove(it);
+      it.removeFromParent();
+    }
+
+    resumeEngine();
   }
 }
 
