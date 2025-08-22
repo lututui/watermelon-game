@@ -29,14 +29,14 @@ class Main extends StatelessWidget {
         body: GameWidget<WatermelonGame>.controlled(
           gameFactory: WatermelonGame.new,
           overlayBuilderMap: {
-            ScoreOverlayConstants.overlayId:
-                (_, game) => ScoreOverlayWidget(game: game),
-            GameOverOverlayConstants.overlayId:
+            ScoreOverlay.overlayId:
+                (_, game) => ScoreOverlay(game: game),
+            GameOverOverlay.overlayId:
                 (_, game) => GameOverOverlay(game: game),
-            PauseOverlayConstants.overlayId:
+            PauseOverlay.overlayId:
                 (_, game) => PauseOverlay(game: game),
           },
-          initialActiveOverlays: [ScoreOverlayConstants.overlayId],
+          initialActiveOverlays: [ScoreOverlay.overlayId],
         ),
       ),
     );

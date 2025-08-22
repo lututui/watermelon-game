@@ -31,7 +31,7 @@ class WatermelonGame extends Forge2DGame with WindowListener {
       }
 
       pauseEngine();
-      overlays.add(GameOverOverlayConstants.overlayId);
+      overlays.add(GameOverOverlay.overlayId);
     }
 
     mergeCooldown.update(dt);
@@ -88,7 +88,7 @@ class WatermelonGame extends Forge2DGame with WindowListener {
 
   @override
   void onWindowRestore() {
-    overlays.add(PauseOverlayConstants.overlayId);
+    overlays.add(PauseOverlay.overlayId);
     pauseEngine();
   }
 }

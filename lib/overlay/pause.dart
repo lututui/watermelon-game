@@ -3,6 +3,7 @@ import 'package:watermelon_game/game.dart';
 
 class PauseOverlay extends StatelessWidget {
   final WatermelonGame game;
+  static const String overlayId = 'Pause';
 
   const PauseOverlay({super.key, required this.game});
 
@@ -26,7 +27,7 @@ class PauseOverlay extends StatelessWidget {
               alignment: Alignment.topRight,
               child: ElevatedButton(
                 onPressed: () {
-                  game.overlays.remove(PauseOverlayConstants.overlayId);
+                  game.overlays.remove(overlayId);
                   game.resumeEngine();
                 },
                 style: ElevatedButton.styleFrom(shape: CircleBorder()),
@@ -45,10 +46,4 @@ class PauseOverlay extends StatelessWidget {
       ),
     );
   }
-}
-
-class PauseOverlayConstants {
-  static const String overlayId = 'Pause';
-
-  PauseOverlayConstants._();
 }

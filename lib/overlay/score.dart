@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:watermelon_game/game.dart';
 
-class ScoreOverlayWidget extends StatelessWidget {
+class ScoreOverlay extends StatelessWidget {
   final WatermelonGame game;
+  static const String overlayId = 'Score';
 
-  const ScoreOverlayWidget({super.key, required this.game});
+  const ScoreOverlay({super.key, required this.game});
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +30,4 @@ class ScoreOverlayWidget extends StatelessWidget {
       ),
     );
   }
-}
-
-class ScoreOverlayConstants {
-  static const String overlayId = 'Score';
-
-  ScoreOverlayConstants._();
 }
