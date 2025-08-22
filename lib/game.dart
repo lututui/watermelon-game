@@ -4,16 +4,17 @@ import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/foundation.dart';
 import 'package:watermelon_game/bucket.dart';
 import 'package:watermelon_game/fruit.dart';
+import 'package:watermelon_game/overlay/game_over.dart';
+import 'package:watermelon_game/overlay/pause.dart';
 import 'package:watermelon_game/player.dart';
+import 'package:window_manager/window_manager.dart';
 
-class WatermelonGame extends Forge2DGame {
+class WatermelonGame extends Forge2DGame with WindowListener {
   final Player player = Player();
   final Bucket bucket = Bucket();
   final Set<Fruit> fruit = {};
 
   final Timer mergeCooldown = Timer(0.1, autoStart: false);
-
-  late final Function(int) onScoreChangeCallback;
 
   ValueNotifier<int> score = ValueNotifier(0);
   bool gameOver = false;
@@ -30,7 +31,7 @@ class WatermelonGame extends Forge2DGame {
       }
 
       pauseEngine();
-      overlays.add('GameOver');
+      overlays.add(GameOverOverlayConstants.overlayId);
     }
 
     mergeCooldown.update(dt);
@@ -59,6 +60,16 @@ class WatermelonGame extends Forge2DGame {
     );
     world.add(bucket);
     world.add(player);
+
+    windowManager.addListener(this);
+  }
+
+
+  @override
+  void onDispose() {
+    windowManager.removeListener(this);
+
+    super.onDispose();
   }
 
   void resetGame() {
@@ -70,7 +81,15 @@ class WatermelonGame extends Forge2DGame {
       it.removeFromParent();
     }
 
+    assert(fruit.isEmpty);
+
     resumeEngine();
+  }
+
+  @override
+  void onWindowRestore() {
+    overlays.add(PauseOverlayConstants.overlayId);
+    pauseEngine();
   }
 }
 

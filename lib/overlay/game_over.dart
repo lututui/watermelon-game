@@ -19,7 +19,7 @@ class GameOverOverlay extends StatelessWidget {
           Text("Score: ${game.score.value}"),
           ElevatedButton(
             onPressed: () {
-              game.overlays.remove(GameOverOverlayConstants.gameOverOverlayId);
+              game.overlays.remove(GameOverOverlayConstants.overlayId);
               game.resetGame();
             },
             child: Row(
@@ -40,7 +40,7 @@ class GameOverOverlay extends StatelessWidget {
 }
 
 class GameOverOverlayConstants {
-  static const String gameOverOverlayId = 'GameOver';
+  static const String overlayId = 'GameOver';
 
   GameOverOverlayConstants._();
 }

@@ -32,7 +32,7 @@ class ScoreOverlayWidget extends StatelessWidget {
 }
 
 class ScoreOverlayConstants {
-  static const String scoreOverlayId = 'Score';
+  static const String overlayId = 'Score';
 
   ScoreOverlayConstants._();
 }

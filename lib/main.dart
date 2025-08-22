@@ -2,6 +2,7 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:watermelon_game/game.dart';
 import 'package:watermelon_game/overlay/game_over.dart';
+import 'package:watermelon_game/overlay/pause.dart';
 import 'package:watermelon_game/overlay/score.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -28,12 +29,14 @@ class Main extends StatelessWidget {
         body: GameWidget<WatermelonGame>.controlled(
           gameFactory: WatermelonGame.new,
           overlayBuilderMap: {
-            ScoreOverlayConstants.scoreOverlayId:
+            ScoreOverlayConstants.overlayId:
                 (_, game) => ScoreOverlayWidget(game: game),
-            GameOverOverlayConstants.gameOverOverlayId:
+            GameOverOverlayConstants.overlayId:
                 (_, game) => GameOverOverlay(game: game),
+            PauseOverlayConstants.overlayId:
+                (_, game) => PauseOverlay(game: game),
           },
-          initialActiveOverlays: [ScoreOverlayConstants.scoreOverlayId],
+          initialActiveOverlays: [ScoreOverlayConstants.overlayId],
         ),
       ),
     );
